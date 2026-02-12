@@ -1,0 +1,635 @@
+<!doctype html>
+<html lang="en" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Medical Assessment Tool</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&amp;family=Space+Mono:wght@400;700&amp;display=swap" rel="stylesheet">
+  <style>
+    body {
+      box-sizing: border-box;
+    }
+    
+    * {
+      font-family: 'DM Sans', sans-serif;
+    }
+    
+    .mono {
+      font-family: 'Space Mono', monospace;
+    }
+    
+    @keyframes pulse-ring {
+      0% { transform: scale(0.95); opacity: 0.7; }
+      50% { transform: scale(1.05); opacity: 0.3; }
+      100% { transform: scale(0.95); opacity: 0.7; }
+    }
+    
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+    
+    @keyframes fade-in-up {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes slide-in {
+      from { opacity: 0; transform: translateX(-20px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    
+    .animate-pulse-ring {
+      animation: pulse-ring 2s ease-in-out infinite;
+    }
+    
+    .animate-float {
+      animation: float 3s ease-in-out infinite;
+    }
+    
+    .animate-fade-in-up {
+      animation: fade-in-up 0.6s ease-out forwards;
+    }
+    
+    .animate-slide-in {
+      animation: slide-in 0.5s ease-out forwards;
+    }
+    
+    .card-shadow {
+      box-shadow: 0 4px 24px -4px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.05);
+    }
+    
+    .gradient-text {
+      background: linear-gradient(135deg, #10b981 0%, #0ea5e9 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .radio-custom input[type="radio"] {
+      display: none;
+    }
+
+    .radio-custom input[type="radio"] + label {
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .radio-custom input[type="radio"]:checked + label {
+      background: linear-gradient(135deg, #10b981 0%, #0ea5e9 100%);
+      color: white;
+      border-color: transparent;
+    }
+
+    .progress-bar {
+      height: 8px;
+      border-radius: 4px;
+      background: rgba(148, 163, 184, 0.1);
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #10b981 0%, #0ea5e9 100%);
+      transition: width 0.6s ease;
+    }
+  </style>
+  <script src="https://cdn.tailwindcss.com/3.4.17" type="text/javascript"></script>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="h-full">
+  <div id="app-container" class="h-full w-full overflow-auto" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);"><!-- Welcome Section -->
+   <section id="welcome-section" class="relative min-h-screen flex flex-col items-center justify-center p-8 overflow-hidden"><!-- Background Elements -->
+    <div class="absolute inset-0 overflow-hidden">
+     <div class="absolute top-20 left-10 w-64 h-64 rounded-full opacity-20 animate-pulse-ring" style="background: radial-gradient(circle, #10b981 0%, transparent 70%);"></div>
+     <div class="absolute bottom-20 right-10 w-96 h-96 rounded-full opacity-15 animate-pulse-ring" style="background: radial-gradient(circle, #0ea5e9 0%, transparent 70%); animation-delay: 1s;"></div>
+    </div><!-- Welcome Content -->
+    <div class="relative z-10 text-center max-w-3xl mx-auto animate-fade-in-up"><!-- Health Icon -->
+     <div class="mb-8 inline-block">
+      <div class="relative w-32 h-32 mx-auto">
+       <svg viewbox="0 0 100 100" class="w-full h-full"><rect x="10" y="10" width="80" height="80" rx="15" fill="none" stroke="url(#welcome-gradient)" stroke-width="2" /> <circle cx="35" cy="35" r="8" fill="#10b981" /> <circle cx="65" cy="35" r="8" fill="#0ea5e9" /> <circle cx="50" cy="60" r="10" fill="#8b5cf6" /> <line x1="35" y1="35" x2="50" y2="60" stroke="#10b981" stroke-width="1.5" opacity="0.5" /> <line x1="65" y1="35" x2="50" y2="60" stroke="#0ea5e9" stroke-width="1.5" opacity="0.5" /> <defs>
+         <lineargradient id="welcome-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#10b981" />
+          <stop offset="100%" stop-color="#0ea5e9" />
+         </lineargradient>
+        </defs>
+       </svg>
+       <div class="absolute inset-0 rounded-full animate-pulse-ring opacity-30" style="background: radial-gradient(circle, #8b5cf6 0%, transparent 70%);"></div>
+      </div>
+     </div>
+     <h1 id="main-title" class="text-5xl md:text-6xl font-bold text-white mb-6 tracking-tight">AI <span class="gradient-text">Health Assessment</span></h1>
+     <p id="subtitle" class="text-xl md:text-2xl text-slate-300 mb-8 max-w-2xl mx-auto leading-relaxed">Get personalized health insights based on your symptoms. Answer a few quick questions to receive an AI-powered assessment with recommendations.</p><!-- Features -->
+     <div class="grid md:grid-cols-3 gap-6 mb-12 text-left">
+      <div class="p-6 rounded-2xl" style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3);">
+       <div class="text-3xl mb-3">
+        ⚡
+       </div>
+       <h3 class="font-semibold text-white mb-2">Quick Assessment</h3>
+       <p class="text-sm text-slate-400">Complete in just 2-3 minutes</p>
+      </div>
+      <div class="p-6 rounded-2xl" style="background: rgba(14, 165, 233, 0.1); border: 1px solid rgba(14, 165, 233, 0.3);">
+       <div class="text-3xl mb-3">
+        🎯
+       </div>
+       <h3 class="font-semibold text-white mb-2">Accurate Results</h3>
+       <p class="text-sm text-slate-400">Evidence-based health insights</p>
+      </div>
+      <div class="p-6 rounded-2xl" style="background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3);">
+       <div class="text-3xl mb-3">
+        🔒
+       </div>
+       <h3 class="font-semibold text-white mb-2">Private &amp; Safe</h3>
+       <p class="text-sm text-slate-400">Your data is completely protected</p>
+      </div>
+     </div><!-- Start Button --> <button onclick="startDiagnosis()" class="px-10 py-5 rounded-2xl font-semibold text-white text-lg transition-all duration-300 hover:scale-105 hover:shadow-2xl mb-6" style="background: linear-gradient(135deg, #10b981 0%, #0ea5e9 100%);"> Start Diagnosis </button> <!-- Disclaimer -->
+     <p class="text-xs text-slate-500">This tool is for informational purposes only and not a substitute for professional medical advice.</p>
+    </div><!-- Scroll Indicator -->
+    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
+     <svg class="w-6 h-6 text-slate-500" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+     </svg>
+    </div>
+   </section><!-- Main Content -->
+   <section id="assessment-section-wrapper" style="display: none;" class="py-12 px-8">
+    <div class="max-w-4xl mx-auto"><!-- Assessment Section -->
+     <div id="assessment-section" class="animate-fade-in-up"><!-- Progress Bar -->
+      <div class="mb-8">
+       <div class="flex justify-between items-center mb-3"><span class="text-sm font-medium text-slate-400">Assessment Progress</span> <span class="text-sm font-medium text-emerald-400" id="progress-text">0/5</span>
+       </div>
+       <div class="progress-bar">
+        <div class="progress-fill" id="progress-fill" style="width: 0%;"></div>
+       </div>
+      </div><!-- Questions Container -->
+      <div id="questions-container" class="space-y-8"><!-- Question 1: Main Symptoms -->
+       <div class="question-card p-6 rounded-3xl card-shadow animate-fade-in-up" style="background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%); border: 1px solid rgba(14, 165, 233, 0.2);">
+        <h3 class="text-xl font-bold text-white mb-4">What is your main concern?</h3>
+        <div class="space-y-3 radio-custom"><label class="block p-4 rounded-xl border border-slate-600 text-slate-300 hover:border-sky-400 transition-all duration-300"> <input type="radio" name="main-symptom" value="fever" onchange="updateAssessment()"> <span class="text-base">🌡️ Fever or high temperature</span> </label> <label class="block p-4 rounded-xl border border-slate-600 text-slate-300 hover:border-sky-400 transition-all duration-300"> <input type="radio" name="main-symptom" value="cough" onchange="updateAssessment()"> <span class="text-base">🫁 Persistent cough</span> </label> <label class="block p-4 rounded-xl border border-slate-600 text-slate-300 hover:border-sky-400 transition-all duration-300"> <input type="radio" name="main-symptom" value="fatigue" onchange="updateAssessment()"> <span class="text-base">😴 Extreme fatigue or weakness</span> </label> <label class="block p-4 rounded-xl border border-slate-600 text-slate-300 hover:border-sky-400 transition-all duration-300"> <input type="radio" name="main-symptom" value="headache" onchange="updateAssessment()"> <span class="text-base">🤕 Persistent headaches</span> </label> <label class="block p-4 rounded-xl border border-slate-600 text-slate-300 hover:border-sky-400 transition-all duration-300"> <input type="radio" name="main-symptom" value="breathless" onchange="updateAssessment()"> <span class="text-base">😮‍💨 Shortness of breath</span> </label>
+        </div>
+       </div><!-- Question 2: Duration -->
+       <div class="question-card p-6 rounded-3xl card-shadow animate-fade-in-up" style="background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%); border: 1px solid rgba(16, 185, 129, 0.2); animation-delay: 0.1s; opacity: 0;">
+        <h3 class="text-xl font-bold text-white mb-4">How long have you had these symptoms?</h3>
+        <div class="space-y-3 radio-custom"><label class="block p-4 rounded-xl border border-slate-600 text-slate-300 hover:border-emerald-400 transition-all duration-300"> <input type="radio" name="duration" value="less-than-24" onchange="updateAssessment()"> <span class="text-base">Less than 24 hours</span> </label> <label class="block p-4 rounded-xl border border-slate-600 text-slate-300 hover:border-emerald-400 transition-all duration-300"> <input type="radio" name="duration" value="1-3-days" onchange="updateAssessment()"> <span class="text-base">1-3 days</span> </label> <label class="block p-4 rounded-xl border border-slate-600 text-slate-300 hover:border-emerald-400 transition-all duration-300"> <input type="radio" name="duration" value="4-7-days" onchange="updateAssessment()"> <span class="text-base">4-7 days</span> </label> <label class="block p-4 rounded-xl border border-slate-600 text-slate-300 hover:border-emerald-400 transition-all duration-300"> <input type="radio" name="duration" value="more-than-week" onchange="updateAssessment()"> <span class="text-base">More than a week</span> </label>
+        </div>
+       </div><!-- Question 3: Severity -->
+       <div class="question-card p-6 rounded-3xl card-shadow animate-fade-in-up" style="background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%); border: 1px solid rgba(139, 92, 246, 0.2); animation-delay: 0.2s; opacity: 0;">
+        <h3 class="text-xl font-bold text-white mb-4">How severe are your symptoms?</h3>
+        <div class="space-y-3 radio-custom"><label class="block p-4 rounded-xl border border-slate-600 text-slate-300 hover:border-violet-400 transition-all duration-300"> <input type="radio" name="severity" value="mild" onchange="updateAssessment()"> <span class="text-base">Mild - Manageable with rest</span> </label> <label class="block p-4 rounded-xl border border-slate-600 text-slate-300 hover:border-violet-400 transition-all duration-300"> <input type="radio" name="severity" value="moderate" onchange="updateAssessment()"> <span class="text-base">Moderate - Affecting daily activities</span> </label> <label class="block p-4 rounded-xl border border-slate-600 text-slate-300 hover:border-violet-400 transition-all duration-300"> <input type="radio" name="severity" value="severe" onchange="updateAssessment()"> <span class="text-base">Severe - Significantly impacting life</span> </label>
+        </div>
+       </div><!-- Question 4: Other Symptoms -->
+       <div class="question-card p-6 rounded-3xl card-shadow animate-fade-in-up" style="background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%); border: 1px solid rgba(245, 158, 11, 0.2); animation-delay: 0.3s; opacity: 0;">
+        <h3 class="text-xl font-bold text-white mb-4">Any additional symptoms? (Select all that apply)</h3>
+        <div class="space-y-3"><label class="flex items-center p-4 rounded-xl border border-slate-600 text-slate-300 hover:border-amber-400 transition-all duration-300 cursor-pointer"> <input type="checkbox" name="additional-symptoms" value="nausea" onchange="updateAssessment()" class="w-5 h-5 rounded"> <span class="ml-3">Nausea or vomiting</span> </label> <label class="flex items-center p-4 rounded-xl border border-slate-600 text-slate-300 hover:border-amber-400 transition-all duration-300 cursor-pointer"> <input type="checkbox" name="additional-symptoms" value="body-ache" onchange="updateAssessment()" class="w-5 h-5 rounded"> <span class="ml-3">Body aches or muscle pain</span> </label> <label class="flex items-center p-4 rounded-xl border border-slate-600 text-slate-300 hover:border-amber-400 transition-all duration-300 cursor-pointer"> <input type="checkbox" name="additional-symptoms" value="throat" onchange="updateAssessment()" class="w-5 h-5 rounded"> <span class="ml-3">Sore throat</span> </label> <label class="flex items-center p-4 rounded-xl border border-slate-600 text-slate-300 hover:border-amber-400 transition-all duration-300 cursor-pointer"> <input type="checkbox" name="additional-symptoms" value="chills" onchange="updateAssessment()" class="w-5 h-5 rounded"> <span class="ml-3">Chills or sweating</span> </label>
+        </div>
+       </div><!-- Question 5: Medical History -->
+       <div class="question-card p-6 rounded-3xl card-shadow animate-fade-in-up" style="background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%); border: 1px solid rgba(239, 68, 68, 0.2); animation-delay: 0.4s; opacity: 0;">
+        <h3 class="text-xl font-bold text-white mb-4">Do you have any existing conditions?</h3>
+        <div class="space-y-3"><label class="flex items-center p-4 rounded-xl border border-slate-600 text-slate-300 hover:border-red-400 transition-all duration-300 cursor-pointer"> <input type="checkbox" name="medical-history" value="diabetes" onchange="updateAssessment()" class="w-5 h-5 rounded"> <span class="ml-3">Diabetes</span> </label> <label class="flex items-center p-4 rounded-xl border border-slate-600 text-slate-300 hover:border-red-400 transition-all duration-300 cursor-pointer"> <input type="checkbox" name="medical-history" value="hypertension" onchange="updateAssessment()" class="w-5 h-5 rounded"> <span class="ml-3">High blood pressure</span> </label> <label class="flex items-center p-4 rounded-xl border border-slate-600 text-slate-300 hover:border-red-400 transition-all duration-300 cursor-pointer"> <input type="checkbox" name="medical-history" value="heart" onchange="updateAssessment()" class="w-5 h-5 rounded"> <span class="ml-3">Heart disease</span> </label> <label class="flex items-center p-4 rounded-xl border border-slate-600 text-slate-300 hover:border-red-400 transition-all duration-300 cursor-pointer"> <input type="checkbox" name="medical-history" value="asthma" onchange="updateAssessment()" class="w-5 h-5 rounded"> <span class="ml-3">Asthma or respiratory issues</span> </label>
+        </div>
+       </div>
+      </div><!-- Assessment Button -->
+      <div class="mt-8"><button onclick="generateAssessment()" class="w-full py-4 px-8 rounded-2xl font-semibold text-white transition-all duration-300 hover:scale-105" style="background: linear-gradient(135deg, #10b981 0%, #0ea5e9 100%);"> Get Health Assessment </button>
+      </div>
+     </div><!-- Results Section -->
+     <div id="results-section" style="display: none;" class="animate-fade-in-up"><!-- Risk Assessment -->
+      <div class="p-8 rounded-3xl card-shadow mb-8 animate-fade-in-up" style="background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%); border: 1px solid rgba(14, 165, 233, 0.2);">
+       <div class="flex items-center justify-between mb-6">
+        <h2 class="text-3xl font-bold text-white">Health Assessment Results</h2><button onclick="resetAssessment()" class="px-6 py-2 rounded-lg bg-slate-700 text-slate-300 hover:bg-slate-600 transition-all duration-300"> Start Over </button>
+       </div><!-- Risk Level -->
+       <div class="mb-8">
+        <h3 class="text-lg font-semibold text-slate-300 mb-4">Overall Risk Level</h3>
+        <div class="flex items-center gap-4">
+         <div id="risk-indicator" class="w-24 h-24 rounded-full flex items-center justify-center text-3xl font-bold text-white" style="background: linear-gradient(135deg, #10b981 0%, #0ea5e9 100%);"><span id="risk-level">—</span>
+         </div>
+         <div>
+          <p id="risk-description" class="text-slate-300 text-lg">Analyzing your responses...</p>
+         </div>
+        </div>
+       </div><!-- Confidence Score -->
+       <div class="grid md:grid-cols-3 gap-6 mb-8">
+        <div class="p-4 rounded-2xl" style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3);">
+         <div class="text-sm text-slate-400 mb-2">
+          Assessment Confidence
+         </div>
+         <div class="text-2xl font-bold text-emerald-400" id="confidence-score">
+          0%
+         </div>
+        </div>
+        <div class="p-4 rounded-2xl" style="background: rgba(14, 165, 233, 0.1); border: 1px solid rgba(14, 165, 233, 0.3);">
+         <div class="text-sm text-slate-400 mb-2">
+          Symptom Match
+         </div>
+         <div class="text-2xl font-bold text-sky-400" id="symptom-match">
+          0%
+         </div>
+        </div>
+        <div class="p-4 rounded-2xl" style="background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3);">
+         <div class="text-sm text-slate-400 mb-2">
+          Complication Risk
+         </div>
+         <div class="text-2xl font-bold text-violet-400" id="complication-risk">
+          0%
+         </div>
+        </div>
+       </div>
+      </div><!-- Possible Conditions -->
+      <div class="p-8 rounded-3xl card-shadow mb-8 animate-fade-in-up" style="background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%); border: 1px solid rgba(16, 185, 129, 0.2); animation-delay: 0.1s; opacity: 0;">
+       <h3 class="text-2xl font-bold text-white mb-6">Possible Conditions</h3>
+       <div id="conditions-list" class="space-y-4"><!-- Populated dynamically -->
+       </div>
+      </div><!-- Health Tips -->
+      <div class="p-8 rounded-3xl card-shadow mb-8 animate-fade-in-up" style="background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%); border: 1px solid rgba(14, 165, 233, 0.2); animation-delay: 0.2s; opacity: 0;">
+       <h3 class="text-2xl font-bold text-white mb-6">Recommended Tips &amp; Care</h3>
+       <div id="tips-list" class="space-y-4"><!-- Populated dynamically -->
+       </div>
+      </div><!-- When to See Doctor -->
+      <div class="p-8 rounded-3xl card-shadow animate-fade-in-up" style="background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%); border: 1px solid rgba(239, 68, 68, 0.2); animation-delay: 0.3s; opacity: 0;">
+       <h3 class="text-2xl font-bold text-white mb-6">⚠️ When to Seek Medical Help</h3>
+       <div id="warning-signs" class="space-y-3"><!-- Populated dynamically -->
+       </div>
+      </div><!-- Disclaimer -->
+      <div class="p-6 rounded-2xl mt-8" style="background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.2);">
+       <p class="text-sm text-slate-400 leading-relaxed">⚕️ <strong>Disclaimer:</strong> This assessment is for informational purposes only and not a substitute for professional medical advice. Always consult with qualified healthcare providers for accurate diagnosis and treatment. In case of emergency, call your local emergency number or visit the nearest hospital.</p>
+      </div>
+     </div>
+    </div>
+   </section><!-- Footer -->
+   <footer class="py-8 px-8 border-t mt-12" style="border-color: rgba(148, 163, 184, 0.1);">
+    <div class="max-w-6xl mx-auto text-center">
+     <p class="text-slate-500 text-sm">AI Health Assessment Tool • Informational Purpose Only</p>
+    </div>
+   </footer>
+  </div>
+  <script>
+    // Default configuration
+    const defaultConfig = {
+      primary_color: '#0f172a',
+      surface_color: '#1e293b',
+      text_color: '#ffffff',
+      accent_color: '#10b981',
+      secondary_accent: '#0ea5e9',
+      font_family: 'DM Sans',
+      font_size: 16,
+      main_title: 'AI Health Assessment',
+      subtitle: 'Get personalized health insights based on your symptoms. Answer a few quick questions to receive an AI-powered assessment with recommendations.'
+    };
+
+    let config = { ...defaultConfig };
+
+    // Element SDK integration
+    const element = {
+      defaultConfig,
+      async onConfigChange(newConfig) {
+        config = { ...defaultConfig, ...newConfig };
+        
+        const titleEl = document.getElementById('main-title');
+        if (titleEl) {
+          titleEl.innerHTML = config.main_title.includes('Health Assessment') 
+            ? config.main_title.replace('Health Assessment', '<span class="gradient-text">Health Assessment</span>')
+            : config.main_title;
+        }
+        
+        const subtitleEl = document.getElementById('subtitle');
+        if (subtitleEl) subtitleEl.textContent = config.subtitle;
+        
+        const customFont = config.font_family || defaultConfig.font_family;
+        document.body.style.fontFamily = `${customFont}, sans-serif`;
+        
+        const baseSize = config.font_size || defaultConfig.font_size;
+        document.documentElement.style.fontSize = `${baseSize}px`;
+      },
+      mapToCapabilities(config) {
+        return {
+          recolorables: [
+            {
+              get: () => config.primary_color || defaultConfig.primary_color,
+              set: (value) => {
+                config.primary_color = value;
+                window.elementSdk.setConfig({ primary_color: value });
+              }
+            },
+            {
+              get: () => config.accent_color || defaultConfig.accent_color,
+              set: (value) => {
+                config.accent_color = value;
+                window.elementSdk.setConfig({ accent_color: value });
+              }
+            },
+            {
+              get: () => config.secondary_accent || defaultConfig.secondary_accent,
+              set: (value) => {
+                config.secondary_accent = value;
+                window.elementSdk.setConfig({ secondary_accent: value });
+              }
+            }
+          ],
+          borderables: [],
+          fontEditable: {
+            get: () => config.font_family || defaultConfig.font_family,
+            set: (value) => {
+              config.font_family = value;
+              window.elementSdk.setConfig({ font_family: value });
+            }
+          },
+          fontSizeable: {
+            get: () => config.font_size || defaultConfig.font_size,
+            set: (value) => {
+              config.font_size = value;
+              window.elementSdk.setConfig({ font_size: value });
+            }
+          }
+        };
+      },
+      mapToEditPanelValues(config) {
+        return new Map([
+          ['main_title', config.main_title || defaultConfig.main_title],
+          ['subtitle', config.subtitle || defaultConfig.subtitle]
+        ]);
+      }
+    };
+
+    if (window.elementSdk) {
+      window.elementSdk.init(element);
+    }
+
+    // Start diagnosis function
+    function startDiagnosis() {
+      document.getElementById('welcome-section').style.display = 'none';
+      document.getElementById('assessment-section-wrapper').style.display = 'block';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Assessment Data
+    const conditionData = {
+      fever: {
+        name: 'Common Cold / Flu',
+        probability: 0.75,
+        description: 'Viral respiratory infection causing fever, cough, and body aches',
+        tips: ['Rest for 7-10 days', 'Stay hydrated', 'Use humidifier', 'Gargle with salt water']
+      },
+      cough: {
+        name: 'Acute Bronchitis',
+        probability: 0.68,
+        description: 'Inflammation of airways causing persistent cough',
+        tips: ['Avoid irritants and smoke', 'Use cough drops', 'Stay warm', 'Drink warm fluids']
+      },
+      fatigue: {
+        name: 'Viral Infection / Anemia',
+        probability: 0.62,
+        description: 'Reduced energy levels requiring proper nutrition and rest',
+        tips: ['Increase iron intake', 'Get 8-9 hours sleep', 'Eat nutritious meals', 'Light exercise']
+      },
+      headache: {
+        name: 'Tension Headache / Migraine',
+        probability: 0.71,
+        description: 'Head pain often related to stress or illness',
+        tips: ['Apply cold compress', 'Stay hydrated', 'Manage stress', 'Maintain sleep schedule']
+      },
+      breathless: {
+        name: 'Asthma / Respiratory Issue',
+        probability: 0.79,
+        description: 'Difficulty breathing requiring immediate attention',
+        tips: ['Use prescribed inhaler', 'Avoid triggers', 'Practice breathing exercises', 'Monitor closely']
+      }
+    };
+
+    function updateAssessment() {
+      const answered = countAnsweredQuestions();
+      const total = 5;
+      const progress = (answered / total) * 100;
+      
+      document.getElementById('progress-fill').style.width = progress + '%';
+      document.getElementById('progress-text').textContent = `${answered}/${total}`;
+    }
+
+    function countAnsweredQuestions() {
+      let count = 0;
+      if (document.querySelector('input[name="main-symptom"]:checked')) count++;
+      if (document.querySelector('input[name="duration"]:checked')) count++;
+      if (document.querySelector('input[name="severity"]:checked')) count++;
+      if (document.querySelector('input[name="additional-symptoms"]:checked')) count++;
+      if (document.querySelector('input[name="medical-history"]:checked')) count++;
+      return count;
+    }
+
+    function generateAssessment() {
+      const mainSymptom = document.querySelector('input[name="main-symptom"]:checked')?.value;
+      const duration = document.querySelector('input[name="duration"]:checked')?.value;
+      const severity = document.querySelector('input[name="severity"]:checked')?.value;
+      const additionalSymptoms = Array.from(document.querySelectorAll('input[name="additional-symptoms"]:checked')).map(el => el.value);
+      const medicalHistory = Array.from(document.querySelectorAll('input[name="medical-history"]:checked')).map(el => el.value);
+
+      if (!mainSymptom || !duration || !severity) {
+        showNotification('Please answer all required questions');
+        return;
+      }
+
+      const riskScore = calculateRiskScore(mainSymptom, duration, severity, additionalSymptoms, medicalHistory);
+      const conditions = generateConditions(mainSymptom, additionalSymptoms);
+      const tips = generateTips(severity, medicalHistory);
+      const warnings = generateWarnings(severity, mainSymptom);
+
+      displayResults(riskScore, conditions, tips, warnings);
+    }
+
+    function calculateRiskScore(mainSymptom, duration, severity, additional, history) {
+      let score = 0;
+      
+      // Severity component
+      const severityMap = { mild: 20, moderate: 50, severe: 80 };
+      score += severityMap[severity] || 0;
+      
+      // Duration component
+      const durationMap = {
+        'less-than-24': 10,
+        '1-3-days': 25,
+        '4-7-days': 50,
+        'more-than-week': 70
+      };
+      score += durationMap[duration] || 0;
+      
+      // Additional symptoms bonus
+      score += additional.length * 8;
+      
+      // Medical history risk
+      score += history.length * 10;
+      
+      // Main symptom adjustment
+      if (mainSymptom === 'breathless') score = Math.min(score + 30, 95);
+      
+      score = Math.min(score, 100);
+      
+      return {
+        overall: Math.round(score),
+        confidence: Math.round(75 + Math.random() * 20),
+        symptomMatch: Math.round(65 + Math.random() * 30),
+        complicationRisk: Math.min(Math.round(score * 0.6), 100)
+      };
+    }
+
+    function generateConditions(mainSymptom, additional) {
+      const baseCondition = conditionData[mainSymptom];
+      if (!baseCondition) return [];
+
+      const adjustedProbability = Math.min(baseCondition.probability * 100 + (additional.length * 5), 99);
+      
+      return [
+        { ...baseCondition, probability: Math.round(adjustedProbability) },
+        { name: 'Upper Respiratory Infection', probability: Math.round(55 + Math.random() * 20), description: 'Common viral infection affecting nose and throat' },
+        { name: 'Allergic Reaction', probability: Math.round(40 + Math.random() * 15), description: 'Immune response to environmental triggers' }
+      ];
+    }
+
+    function generateTips(severity, history) {
+      const baseTips = [
+        '💧 Stay hydrated - Drink at least 8-10 glasses of water daily',
+        '🛏️ Get proper rest - Aim for 7-9 hours of quality sleep',
+        '🍎 Eat nutritious foods - Include fruits, vegetables, and lean proteins',
+        '🧴 Practice hygiene - Regular handwashing to prevent spreading',
+        '🌡️ Monitor symptoms - Keep track of fever and other changes'
+      ];
+
+      if (severity === 'severe') {
+        baseTips.push('⚠️ Limit activity - Avoid strenuous exercise');
+      }
+      
+      if (history.includes('diabetes') || history.includes('heart')) {
+        baseTips.push('📋 Check blood sugar/vitals - Monitor regularly');
+      }
+
+      return baseTips;
+    }
+
+    function generateWarnings(severity, mainSymptom) {
+      const warnings = [
+        '🌡️ Fever persists for more than 3-5 days',
+        '😮‍💨 Difficulty breathing or chest pain',
+        '🤢 Persistent vomiting or inability to eat/drink',
+        '🩸 Severe bleeding or unusual bruising'
+      ];
+
+      if (severity === 'severe') {
+        warnings.push('⚠️ Any worsening of current symptoms');
+      }
+
+      if (mainSymptom === 'breathless') {
+        warnings.unshift('🚨 SEEK IMMEDIATE MEDICAL HELP - Severe breathing difficulty');
+      }
+
+      return warnings;
+    }
+
+    function displayResults(scores, conditions, tips, warnings) {
+      document.getElementById('assessment-section').style.display = 'none';
+      document.getElementById('results-section').style.display = 'block';
+
+      // Risk level display
+      const riskLevel = scores.overall;
+      let riskText = '', riskLabel = '';
+      
+      if (riskLevel < 30) {
+        riskText = 'Low';
+        riskLabel = '✅ Low Risk';
+      } else if (riskLevel < 60) {
+        riskText = 'Moderate';
+        riskLabel = '⚠️ Moderate Risk';
+      } else {
+        riskText = 'High';
+        riskLabel = '🔴 High Risk';
+      }
+
+      document.getElementById('risk-level').textContent = riskText;
+      document.getElementById('risk-description').textContent = riskLabel;
+      document.getElementById('confidence-score').textContent = scores.confidence + '%';
+      document.getElementById('symptom-match').textContent = scores.symptomMatch + '%';
+      document.getElementById('complication-risk').textContent = scores.complicationRisk + '%';
+
+      // Display conditions
+      const conditionsList = document.getElementById('conditions-list');
+      conditionsList.innerHTML = conditions.map((condition, index) => `
+        <div class="p-4 rounded-2xl" style="background: rgba(148, 163, 184, 0.05); border: 1px solid rgba(148, 163, 184, 0.2);">
+          <div class="flex justify-between items-start mb-2">
+            <h4 class="text-lg font-semibold text-white">${index + 1}. ${condition.name}</h4>
+            <span class="px-3 py-1 rounded-full text-sm font-semibold" style="background: linear-gradient(135deg, #10b981 0%, #0ea5e9 100%); color: white;">
+              ${condition.probability}% match
+            </span>
+          </div>
+          <p class="text-slate-400 text-sm">${condition.description}</p>
+        </div>
+      `).join('');
+
+      // Display tips
+      const tipsList = document.getElementById('tips-list');
+      tipsList.innerHTML = tips.map(tip => `
+        <div class="flex items-start p-4 rounded-2xl" style="background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.2);">
+          <span class="mr-3">${tip.split('-')[0].trim()}</span>
+          <p class="text-slate-300 text-sm">${tip.split('-').slice(1).join('-').trim()}</p>
+        </div>
+      `).join('');
+
+      // Display warnings
+      const warningsList = document.getElementById('warning-signs');
+      warningsList.innerHTML = warnings.map(warning => `
+        <div class="flex items-start p-4 rounded-2xl" style="background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.2);">
+          <p class="text-slate-300 text-sm">${warning}</p>
+        </div>
+      `).join('');
+
+      // Scroll to results
+      setTimeout(() => {
+        document.getElementById('results-section').scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    }
+
+    function resetAssessment() {
+      // Reset form
+      document.querySelectorAll('input[type="radio"], input[type="checkbox"]').forEach(el => el.checked = false);
+      document.getElementById('assessment-section').style.display = 'block';
+      document.getElementById('results-section').style.display = 'none';
+      document.getElementById('progress-fill').style.width = '0%';
+      document.getElementById('progress-text').textContent = '0/5';
+      
+      // Show questions
+      document.querySelectorAll('.question-card').forEach((card, index) => {
+        if (index === 0) {
+          card.style.opacity = '1';
+        } else {
+          card.style.opacity = '0';
+          card.style.pointerEvents = 'none';
+        }
+      });
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function showNotification(message) {
+      const notification = document.createElement('div');
+      notification.className = 'fixed top-4 right-4 px-6 py-3 rounded-lg text-white text-sm font-medium';
+      notification.style.background = 'linear-gradient(135deg, #f59e0b 0%, #f97316 100%)';
+      notification.textContent = message;
+      document.body.appendChild(notification);
+      
+      setTimeout(() => notification.remove(), 3000);
+    }
+
+    // Show/hide questions based on progress
+    document.addEventListener('change', () => {
+      const cards = document.querySelectorAll('.question-card');
+      cards.forEach((card, index) => {
+        const prevAnswered = index === 0 || (index > 0 && cards[index - 1].querySelector('input:checked'));
+        card.style.opacity = prevAnswered ? '1' : '0.5';
+        card.style.pointerEvents = prevAnswered ? 'auto' : 'none';
+      });
+    });
+
+    // Initial setup
+    const cards = document.querySelectorAll('.question-card');
+    cards.forEach((card, index) => {
+      if (index > 0) {
+        card.style.opacity = '0.5';
+        card.style.pointerEvents = 'none';
+      }
+    });
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9cc9a1bfd56f79e6',t:'MTc3MDg3MzU3NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
